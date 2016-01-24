@@ -1,0 +1,25 @@
+{
+  "name": "storyserver/client",
+  "description": "StoryServer PHP client.",
+  "keywords": ["storyserver"],
+  "type": "library",
+  "minimum-stability": "stable",
+  "require": {
+    "guzzlehttp/guzzle": "^6.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "5.1.*"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Anthony Bouch",
+      "email": "anthony@storyserver.io"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "StoryServer\\": "src"
+    }
+  }
+}
