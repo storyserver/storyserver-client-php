@@ -2,6 +2,8 @@
 
 namespace StoryServer;
 
+class StoryServerClientError extends \Exception { };
+
 class Client {
   /** @var \GuzzleHttp\Client client */
   private $guzzle;
