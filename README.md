@@ -5,7 +5,9 @@
 
 ## Installation
 
-`composer install storyserver/client
+`composer require storyserver/client`
+
+`composer update`
 
 ## Docs
 
