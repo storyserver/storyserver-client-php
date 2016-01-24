@@ -31,12 +31,12 @@ class Client {
    * @param array $options
    */
   public function __construct(array $options) {
-    $this->client = new \GuzzleHttp\Client();
-    $this->formats = $options["formats"];
-    $this->storyServer = $options["storyServer"];
-    $this->appServer = $options["appServer"];
-    $this->keyId = $options["keyId"];
-    $this->secretKey = $options["secretKey"];
+    $this->client       = new \GuzzleHttp\Client();
+    $this->formats      = $options["formats"];
+    $this->storyServer  = $options["storyServer"];
+    $this->appServer    = $options["appServer"];
+    $this->keyId        = $options["keyId"];
+    $this->secretKey    = $options["secretKey"];
   }
 
 
