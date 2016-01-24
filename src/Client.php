@@ -2,6 +2,10 @@
 
 namespace StoryServer;
 
+/**
+ * Class StoryServerClientError
+ * @package StoryServer
+ */
 class StoryServerClientError extends \Exception { };
 
 /**
