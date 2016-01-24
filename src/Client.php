@@ -57,7 +57,7 @@ class Client {
       $query = "ids=" . $storyIds;
     }
 
-    $result = $this->guzzleRequest($this->storyServer . '/stories/' . $this->keyId, $query);
+    $result = $this->clientRequest($this->storyServer . '/stories/' . $this->keyId, $query);
 
     return [
       "data" => $result['data'],
@@ -72,7 +72,7 @@ class Client {
    * @return array
    */
   public function getStoryById($storyId, $path = '') {
-    $result = $this->guzzleRequest($this->storyServer . '/stories/' . $this->keyId . '/' . $storyId);
+    $result = $this->clientRequest($this->storyServer . '/stories/' . $this->keyId . '/' . $storyId);
     return [
       "storyId" => $storyId,
       "data" => $result['data'],
@@ -87,7 +87,7 @@ class Client {
    * @return array
    */
   public function getStoryByUrl($url, $path = '') {
-    $result = $this->guzzleRequest($this->storyServer . '/stories/' . $this->keyId . '/url/' . $url);
+    $result = $this->clientRequest($this->storyServer . '/stories/' . $this->keyId . '/url/' . $url);
     return [
       "url" => $url,
       "data" => $result['data'],
@@ -121,7 +121,7 @@ class Client {
    * @param string $query
    * @return mixed|\Psr\Http\Message\StreamInterface
    */
-  private function guzzleRequest($url, $query = '') {
+  private function clientRequest($url, $query = '') {
     $headers = $this->createAuthHeader();
     $headers['formats'] = json_encode($this->formats);
     $headers['accept'] = 'application/vnd.storyserver+json';
