@@ -10,7 +10,7 @@ class StoryServerClientError extends \Exception { };
  */
 class Client {
   /** @var \GuzzleHttp\Client client */
-  private $guzzle;
+  private $client;
 
   /** @var array formats */
   private $formats;
@@ -31,7 +31,7 @@ class Client {
    * @param array $options
    */
   public function __construct(array $options) {
-    $this->guzzle = new \GuzzleHttp\Client();
+    $this->client = new \GuzzleHttp\Client();
     $this->formats = $options["formats"];
     $this->storyServer = $options["storyServer"];
     $this->appServer = $options["appServer"];
@@ -123,12 +123,12 @@ class Client {
     $headers['accept'] = 'application/vnd.storyserver+json';
 
     if(!empty($query)) {
-      $response = $this->guzzle->get($url, [
+      $response = $this->client->get($url, [
         'headers' => $headers,
         'query' => $query
       ]);
     } else {
-      $response = $this->guzzle->get($url, [
+      $response = $this->client->get($url, [
         'headers' => $headers
       ]);
     }
