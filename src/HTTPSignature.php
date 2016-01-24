@@ -24,8 +24,58 @@ class InvalidParamsError extends HttpSignatureError { };
 class InvalidAlgorithmError extends HttpSignatureError { };
 class MissingHeaderError extends HttpSignatureError { };
 
+/**
+ * Class Globals
+ * @package StoryServer
+ */
+class Globals {
+  static function post($key = null, $default = null)
+  {
+    return Globals::checkGlobal($_POST, $key, $default);
+  }
+
+  static function get($key = null, $default = null)
+  {
+    return Globals::checkGlobal($_GET, $key, $default);
+  }
+
+  static function server($key = null, $default = null)
+  {
+    return Globals::checkGlobal($_SERVER, $key, $default);
+  }
+
+  static function checkGlobal($global, $key = null, $default = null)
+  {
+    if ($key) {
+      if (isset($global[$key])) {
+        return $global[$key];
+      } else {
+        return $default ?: null;
+      }
+    }
+    return $global;
+  }
+
+}
+
+
+/**
+ * Class HTTPSignature
+ * @package StoryServer
+ */
 class HTTPSignature {
 
+  /**
+   * @param array $headers
+   * @param array $options
+   * @return array
+   * @throws HttpSignatureError
+   * @throws ExpiredRequestError
+   * @throws InvalidHeaderError
+   * @throws InvalidParamsError
+   * @throws MissingHeaderError
+   * @throws \Exception
+   */
   static function parse(array $headers, array $options = array())
   {
     if (!array_key_exists('authorization', $headers)) {
@@ -59,7 +109,7 @@ class HTTPSignature {
       }
     }
 
-    $headers['request-line'] = sprintf("%s %s %s", $_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], $_SERVER['SERVER_PROTOCOL']);
+    $headers['request-line'] = sprintf("%s %s %s", Globals::server('REQUEST_METHOD', ''), Globals::server('REQUEST_URI', ''), Globals::server('SERVER_PROTOCOL', ''));
 
     foreach ($options['headers'] as $header) {
       if (!array_key_exists($header, $headers)) {
@@ -159,7 +209,7 @@ class HTTPSignature {
           break;
 
         default:
-          throw new Error('invalid state');
+          throw new HttpSignatureError('invalid state');
       }
     }
 
@@ -217,10 +267,17 @@ class HTTPSignature {
     return (array('scheme' => $scheme, 'params' => $params, 'signingString' => implode("\n", $sign)));
   }
 
-  static function verify(array $res, $key)
+  /**
+   * @param array $res
+   * @param $secretKey
+   * @return bool
+   * @throws InvalidAlgorithmError
+   * @throws \Exception
+   */
+  static function verify(array $res, $secretKey)
   {
-    if (!is_string($key)) {
-      throw new \Exception('key is not a string');
+    if (!is_string($secretKey)) {
+      throw new \Exception('secretKey is not a string');
     }
 
     $alg = explode('-', $res['params']['algorithm'], 2);
@@ -233,13 +290,13 @@ class HTTPSignature {
         if (!array_key_exists($alg[1], $map)) {
           throw new InvalidAlgorithmError('unsupported algorithm');
         }
-        $pkey = openssl_get_publickey($key);
-        if ($pkey === FALSE) {
-          throw new \Exception('key could not be parsed');
+        $key = openssl_get_publickey($secretKey);
+        if ($key === FALSE) {
+          throw new \Exception('secretKey could not be parsed');
         }
 
-        $rv = openssl_verify($res['signingString'], base64_decode($res['params']['signature']), $pkey, $map[$alg[1]]);
-        openssl_free_key($pkey);
+        $rv = openssl_verify($res['signingString'], base64_decode($res['params']['signature']), $key, $map[$alg[1]]);
+        openssl_free_key($key);
 
         switch ($rv) {
           case 0:
@@ -247,18 +304,25 @@ class HTTPSignature {
           case 1:
             return (TRUE);
           default:
-            throw new \Exception('key could not be verified');
+            throw new \Exception('secretKey could not be verified');
         }
         break;
 
       case 'hmac':
-        return (hash_hmac($alg[1], $res['signingString'], $key, true) === base64_decode($res['params']['signature']));
+        return (hash_hmac($alg[1], $res['signingString'], $secretKey, true) === base64_decode($res['params']['signature']));
         break;
       default:
         throw new InvalidAlgorithmError("unsupported algorithm");
     }
   }
 
+  /**
+   * @param array $headers
+   * @param array $options
+   * @throws InvalidAlgorithmError
+   * @throws MissingHeaderError
+   * @throws \Exception
+   */
   static function sign(&$headers = array(), array $options = array())
   {
     if (is_null($headers)) {
@@ -272,10 +336,10 @@ class HTTPSignature {
     } elseif (!is_string($options['keyId'])) {
       throw new \Exception('keyId option is not a string');
     }
-    if (!array_key_exists('key', $options)) {
-      throw new \Exception('key option is missing');
-    } elseif (!is_string($options['key'])) {
-      throw new \Exception('key option is not a string');
+    if (!array_key_exists('secretKey', $options)) {
+      throw new \Exception('secretKey option is missing');
+    } elseif (!is_string($options['secretKey'])) {
+      throw new \Exception('secretKey option is not a string');
     }
 
     if (!array_key_exists('headers', $options)) {
@@ -296,8 +360,9 @@ class HTTPSignature {
     if (!array_key_exists('date', $headers)) {
       $headers['date'] = date(DATE_RFC1123);
     }
-    /* XXX */
-    $headers['request-line'] = sprintf("%s %s %s", $_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], $_SERVER['SERVER_PROTOCOL']);
+
+    $headers['request-line'] = sprintf("%s %s %s", Globals::server('REQUEST_METHOD', ''), Globals::server('REQUEST_URI', ''), Globals::server('SERVER_PROTOCOL', ''));
+    //$headers['request-line'] = sprintf("%s %s %s", $_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], $_SERVER['SERVER_PROTOCOL']);
 
     $sign = array();
     foreach ($options['headers'] as $header) {
@@ -318,9 +383,9 @@ class HTTPSignature {
         if (!array_key_exists($alg[1], $map)) {
           throw new InvalidAlgorithmError('unsupported algorithm');
         }
-        $key = openssl_get_privatekey($options['key']);
+        $key = openssl_get_privatekey($options['secretKey']);
         if ($key === FALSE) {
-          throw new \Exception('key option could not be parsed');
+          throw new \Exception('secretKey option could not be parsed');
         }
 
         if (openssl_sign($data, $signature, $key, $map[$alg[1]]) === FALSE) {
@@ -329,7 +394,7 @@ class HTTPSignature {
         break;
 
       case 'hmac':
-        $signature = hash_hmac($alg[1], $data, $options['key'], true);
+        $signature = hash_hmac($alg[1], $data, $options['secretKey'], true);
         break;
       default:
         throw new InvalidAlgorithmError("unsupported algorithm");

@@ -4,6 +4,10 @@ namespace StoryServer;
 
 class StoryServerClientError extends \Exception { };
 
+/**
+ * Class Client
+ * @package StoryServer
+ */
 class Client {
   /** @var \GuzzleHttp\Client client */
   private $guzzle;
@@ -23,23 +27,23 @@ class Client {
   /** @var string secretKey */
   private $secretKey;
 
+  /**
+   * @param array $options
+   */
   public function __construct(array $options) {
     $this->guzzle = new \GuzzleHttp\Client();
     $this->formats = $options["formats"];
     $this->storyServer = $options["storyServer"];
     $this->appServer = $options["appServer"];
-    $this->secretKeyId = $options["secretKeyId"];
+    $this->keyId = $options["keyId"];
     $this->secretKey = $options["secretKey"];
   }
 
 
   /**
    * Get the index of stories.
-   *
-   * @param string $storyIds optional group by storyIds
-   *
+   * @param null $storyIds
    * @param string $path
-   *
    * @return array
    */
   public function getIndex($storyIds = null, $path = '') {
@@ -49,60 +53,56 @@ class Client {
       $query = "ids=" . $storyIds;
     }
 
-    $data = $this->guzzleRequest($this->storyServer . '/stories/' . $this->keyId, $query);
+    $result = $this->guzzleRequest($this->storyServer . '/stories/' . $this->keyId, $query);
 
     return [
-      "data" => $data,
+      "data" => $result['data'],
       "appServer" => (empty($path)) ? $this->appServer : $this->appServer . '/' . $path
     ];
   }
 
   /**
    * Get story
-   *
-   * @param string $storyId
-   *
+   * @param $storyId
    * @param string $path
-   *
    * @return array
    */
   public function getStoryById($storyId, $path = '') {
-    $data = $this->guzzleRequest($this->storyServer . '/stories/' . $this->keyId . '/' . $storyId);
+    $result = $this->guzzleRequest($this->storyServer . '/stories/' . $this->keyId . '/' . $storyId);
     return [
       "storyId" => $storyId,
-      "data" => $data,
+      "data" => $result['data'],
       "appServer" => (empty($path)) ? $this->appServer : $this->appServer . '/' . $path
     ];
   }
 
   /**
    * Get story by url
-   *
-   * @param string $url
-   *
+   * @param $url
    * @param string $path
-   *
    * @return array
    */
   public function getStoryByUrl($url, $path = '') {
-    $data = $this->guzzleRequest($this->storyServer . '/stories/' . $this->keyId . '/url/' . $url);
+    $result = $this->guzzleRequest($this->storyServer . '/stories/' . $this->keyId . '/url/' . $url);
     return [
       "url" => $url,
-      "data" => $data,
+      "data" => $result['data'],
       "appServer" => (empty($path)) ? $this->appServer : $this->appServer . '/' . $path
     ];
   }
 
   /**
    * Create signed authorization header.
-   *
-   * @return string
+   * @return array
+   * @throws InvalidAlgorithmError
+   * @throws MissingHeaderError
+   * @throws \Exception
    */
   private function createAuthHeader() {
     $date = gmdate(DATE_RFC1123);
     $headers = array('date' => $date);
 
-    \StoryServer\HTTPSignature::sign($headers, array(
+    HTTPSignature::sign($headers, array(
       'secretKey' => $this->secretKey,
       'keyId' => $this->keyId,
       'algorithm' => 'hmac-sha1'
@@ -113,36 +113,40 @@ class Client {
 
   /**
    * Guzzle request
-   *
-   * @param string $url api url
-   *
-   * @param string $query optional query string arguments
-   *
-   * @return string json result
+   * @param $url
+   * @param string $query
+   * @return mixed|\Psr\Http\Message\StreamInterface
    */
   private function guzzleRequest($url, $query = '') {
     $headers = $this->createAuthHeader();
     $headers['formats'] = json_encode($this->formats);
 
     if(!empty($query)) {
-      $res = $this->guzzle->get($url, [
+      $response = $this->guzzle->get($url, [
         'headers' => $headers,
         'query' => $query
       ]);
     } else {
-      $res = $this->guzzle->get($url, [
+      $response = $this->guzzle->get($url, [
         'headers' => $headers
       ]);
     }
 
-    $status = $res->getStatusCode(); // 200
-    $contentType = $res->getHeader('content-type'); // 'application/json; charset=utf8'
-    $body = $res->getBody();
+    $body = $response->getBody();
+    $safeJson = str_replace("\\", "\\\\", $body); //Prepares JSON string for inclusion in JavaScript
+    $safeJson = str_replace("'", "\\'",$safeJson);
+
+    $result = [
+      "status" => $response->getStatusCode(), // 200 etc.
+      "contentType" => $response->getHeader('content-type'), // 'application/json; charset=utf8'
+      "body" => $body,
+      "data" => json_decode($body), //Parse json to array
+      "safeJson" => $safeJson
+    ];
+
     //$data = htmlspecialchars($body , ENT_QUOTES & ~ENT_COMPAT, "UTF-8"); //Encode but leave double quotes in JSON alone.
     //$data = htmlentities($body , ENT_QUOTES & ~ENT_COMPAT, "UTF-8"); //Encode but leave double quotes in JSON alone.
-    $body = str_replace("\\", "\\\\", $body); //Prepares JSON string for inclusion in JavaScript
-    $body = str_replace("'", "\\'",$body);
-    return $body;
+    return $result;
 
   }
 }
