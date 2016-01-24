@@ -30,12 +30,36 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     //fwrite(STDERR, print_r($result, TRUE));
   }
 
+
+
   /**
    * @test
    */
-  public function getStory()
+  public function getStoriesByIds()
+  {
+    $result = $this->client->getIndex('21,15');
+    $this->assertArrayHasKey('data', $result);
+    $this->assertArrayHasKey('appServer', $result);
+    //fwrite(STDERR, print_r($result, TRUE));
+  }
+
+  /**
+   * @test
+   */
+  public function getStoryById()
   {
     $result = $this->client->getStoryById(21);
+    $this->assertArrayHasKey('data', $result);
+    $this->assertArrayHasKey('appServer', $result);
+    //fwrite(STDERR, print_r($result, TRUE));
+  }
+
+  /**
+   * @test
+   */
+  public function getStoryByUrl()
+  {
+    $result = $this->client->getStoryByUrl('photos-of-luang-prabang');
     $this->assertArrayHasKey('data', $result);
     $this->assertArrayHasKey('appServer', $result);
     //fwrite(STDERR, print_r($result, TRUE));

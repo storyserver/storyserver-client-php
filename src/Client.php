@@ -76,8 +76,8 @@ class Client {
     ];
   }
 
+
   /**
-   * Get story by url
    * @param $url
    * @param string $path
    * @return array
@@ -120,6 +120,7 @@ class Client {
   private function guzzleRequest($url, $query = '') {
     $headers = $this->createAuthHeader();
     $headers['formats'] = json_encode($this->formats);
+    $headers['accept'] = 'application/vnd.storyserver+json';
 
     if(!empty($query)) {
       $response = $this->guzzle->get($url, [
