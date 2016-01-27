@@ -140,7 +140,9 @@ class Client {
    */
   private function clientRequest($url, $query = '') {
     $headers = $this->createAuthHeader();
-    $headers['formats'] = json_encode($this->formats);
+    if($this->formats) {
+      $headers['formats'] = json_encode($this->formats);
+    }
     $headers['accept'] = 'application/vnd.storyserver+json';
 
     if(!empty($query)) {
