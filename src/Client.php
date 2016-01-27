@@ -66,7 +66,7 @@ class Client {
   }
 
   /**
-   * Get story
+   * Get Story by Id
    * @param $storyId
    * @param string $path
    * @return array
@@ -82,6 +82,7 @@ class Client {
 
 
   /**
+   * Get Story by Url
    * @param $url
    * @param string $path
    * @return array
@@ -92,6 +93,22 @@ class Client {
       "url" => $url,
       "data" => $result['data'],
       "appServer" => (empty($path)) ? $this->appServer : $this->appServer . '/' . $path
+    ];
+  }
+
+  /**
+   * Get Story Names
+   * @param query
+   * @return array
+   */
+  public function getStoryNames($query) {
+
+    $query = "q=" . $query;
+
+    $result = $this->clientRequest($this->storyServer . '/stories/' . $this->keyId . '/names', $query);
+    return [
+      "data" => $result['data'],
+      "body" => $result['body']
     ];
   }
 

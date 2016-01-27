@@ -2,7 +2,7 @@
   "name": "storyserver/client",
   "description": "StoryServer PHP client.",
   "keywords": ["storyserver"],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "library",
   "minimum-stability": "stable",
   "require": {

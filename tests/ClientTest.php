@@ -62,6 +62,16 @@ class ClientTest extends \PHPUnit_Framework_TestCase {
     $result = $this->client->getStoryByUrl('photos-of-luang-prabang');
     $this->assertArrayHasKey('data', $result);
     $this->assertArrayHasKey('appServer', $result);
-    //fwrite(STDERR, print_r($result, TRUE));
+    fwrite(STDERR, print_r($result, TRUE));
+  }
+
+  /**
+   * @test
+   */
+  public function getStoryNames()
+  {
+    $result = $this->client->getStoryNames('Lu');
+    $this->assertArrayHasKey('data', $result);
+    fwrite(STDERR, print_r($result, TRUE));
   }
 }
