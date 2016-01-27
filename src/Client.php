@@ -103,7 +103,7 @@ class Client {
    */
   public function getStoryNames($query) {
 
-    $query = "q=" . $query;
+    $query = "storyname=" . $query;
 
     $result = $this->clientRequest($this->storyServer . '/stories/' . $this->keyId . '/names', $query);
     return [
