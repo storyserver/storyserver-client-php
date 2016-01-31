@@ -61,6 +61,7 @@ class Client {
 
     return [
       "data" => $result['data'],
+      "safeJson" => $result['safeJson'],
       "appServer" => (empty($path)) ? $this->appServer : $this->appServer . '/' . $path
     ];
   }
@@ -76,6 +77,7 @@ class Client {
     return [
       "storyId" => $storyId,
       "data" => $result['data'],
+      "safeJson" => $result['safeJson'],
       "appServer" => (empty($path)) ? $this->appServer : $this->appServer . '/' . $path
     ];
   }
@@ -92,6 +94,7 @@ class Client {
     return [
       "url" => $url,
       "data" => $result['data'],
+      "safeJson" => $result['safeJson'],
       "appServer" => (empty($path)) ? $this->appServer : $this->appServer . '/' . $path
     ];
   }
