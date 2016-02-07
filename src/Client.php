@@ -169,7 +169,7 @@ class Client {
     $result = [
       "status" => $response->getStatusCode(), // 200 etc.
       "contentType" => $response->getHeader('content-type'), // 'application/json; charset=utf8'
-      "raw" => $body,
+      "raw" => (string)$body,
       "data" => json_decode($body), //Parse json to array
       "safeJson" => $safeJson
     ];
