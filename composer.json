@@ -17,7 +17,7 @@
     {
       "name": "Anthony Bouch",
       "email": "anthony@storyserver.io",
-      "homepage": "https://storyserver.io",
+      "homepage": "https://storyserver.io"
     }
   ],
   "autoload": {
