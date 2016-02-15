@@ -1,6 +1,7 @@
 {
   "name": "storyserver/client",
   "description": "StoryServer PHP client.",
+  "homepage": "https://storyserver.io",
   "keywords": ["storyserver"],
   "version": "1.0.1",
   "type": "library",
@@ -15,7 +16,8 @@
   "authors": [
     {
       "name": "Anthony Bouch",
-      "email": "anthony@storyserver.io"
+      "email": "anthony@storyserver.io",
+      "homepage": "https://storyserver.io",
     }
   ],
   "autoload": {
