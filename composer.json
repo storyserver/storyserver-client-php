@@ -1,7 +1,7 @@
 {
   "name": "storyserver/client",
   "description": "StoryServer PHP client.",
-  "homepage": "https://storyserver.io",
+  "homepage": "https://github.com/storyserver/storyserver-client-php",
   "keywords": ["storyserver"],
   "version": "1.0.1",
   "type": "library",
