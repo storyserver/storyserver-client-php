@@ -178,7 +178,7 @@ class Client {
       return $result;
     }
     catch (\Exception $e) {
-      throw new StoryServerClientError('StoryServer\StoryServerClientError:' . $e->getMessage(), $e->getCode(), $e);
+      throw new StoryServerClientError('StoryServer\StoryServerClientError: ' . $e->getMessage(), $e->getCode(), $e);
     }
   }
 }
