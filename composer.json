@@ -3,7 +3,7 @@
   "description": "StoryServer PHP client.",
   "homepage": "https://github.com/storyserver/storyserver-client-php",
   "keywords": ["storyserver"],
-  "version": "1.0.2",
+  "version": "1.0.4",
   "type": "library",
   "minimum-stability": "stable",
   "require": {
