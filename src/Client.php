@@ -142,41 +142,43 @@ class Client {
    * Guzzle request
    * @param $url
    * @param string $query
-   * @return mixed|\Psr\Http\Message\StreamInterface
+   * @return array
+   * @throws StoryServerClientError
    */
   private function clientRequest($url, $query = '') {
-    $headers = $this->createAuthHeader();
-    if($this->formats) {
-      $headers['formats'] = json_encode($this->formats);
+
+    try {
+      $headers = $this->createAuthHeader();
+      if($this->formats) {
+        $headers['formats'] = json_encode($this->formats);
+      }
+      $headers['accept'] = 'application/vnd.storyserver+json';
+
+      $params = ['headers' => $headers];
+      if(!empty($query)) {
+        $params['query'] = $query;
+      }
+
+      $response = $this->client->get($url, $params);
+
+      $body = $response->getBody();
+      $safeJson = str_replace("\\", "\\\\", $body); //Prepares JSON string for inclusion in JavaScript
+      $safeJson = str_replace("'", "\\'",$safeJson);
+
+      $result = [
+        "status" => $response->getStatusCode(), // 200 etc.
+        "contentType" => $response->getHeader('content-type'), // 'application/json; charset=utf8'
+        "raw" => (string)$body,
+        "data" => json_decode($body), //Parse json to array
+        "safeJson" => $safeJson
+      ];
+
+      //$data = htmlspecialchars($body , ENT_QUOTES & ~ENT_COMPAT, "UTF-8"); //Encode but leave double quotes in JSON alone.
+      //$data = htmlentities($body , ENT_QUOTES & ~ENT_COMPAT, "UTF-8"); //Encode but leave double quotes in JSON alone.
+      return $result;
     }
-    $headers['accept'] = 'application/vnd.storyserver+json';
-
-    if(!empty($query)) {
-      $response = $this->client->get($url, [
-        'headers' => $headers,
-        'query' => $query
-      ]);
-    } else {
-      $response = $this->client->get($url, [
-        'headers' => $headers
-      ]);
+    catch (\Exception $e) {
+      throw new StoryServerClientError($e->getMessage(), $e->getCode(), $e);
     }
-
-    $body = $response->getBody();
-    $safeJson = str_replace("\\", "\\\\", $body); //Prepares JSON string for inclusion in JavaScript
-    $safeJson = str_replace("'", "\\'",$safeJson);
-
-    $result = [
-      "status" => $response->getStatusCode(), // 200 etc.
-      "contentType" => $response->getHeader('content-type'), // 'application/json; charset=utf8'
-      "raw" => (string)$body,
-      "data" => json_decode($body), //Parse json to array
-      "safeJson" => $safeJson
-    ];
-
-    //$data = htmlspecialchars($body , ENT_QUOTES & ~ENT_COMPAT, "UTF-8"); //Encode but leave double quotes in JSON alone.
-    //$data = htmlentities($body , ENT_QUOTES & ~ENT_COMPAT, "UTF-8"); //Encode but leave double quotes in JSON alone.
-    return $result;
-
   }
 }
