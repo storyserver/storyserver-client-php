@@ -6,7 +6,7 @@ namespace StoryServer;
  * Class StoryServerClientError
  * @package StoryServer
  */
-class StoryServerClientError extends \Exception { };
+class ClientError extends \Exception { };
 
 /**
  * Class Client
@@ -143,7 +143,7 @@ class Client {
    * @param $url
    * @param string $query
    * @return array
-   * @throws StoryServerClientError
+   * @throws ClientError
    */
   private function clientRequest($url, $query = '') {
 
@@ -178,7 +178,7 @@ class Client {
       return $result;
     }
     catch (\Exception $e) {
-      throw new StoryServerClientError('StoryServer\StoryServerClientError: ' . $e->getMessage(), $e->getCode(), $e);
+      throw new ClientError('StoryServer\ClientError: ' . $e->getMessage(), $e->getCode(), $e);
     }
   }
 }
