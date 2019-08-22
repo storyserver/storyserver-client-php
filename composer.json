@@ -3,11 +3,11 @@
   "description": "StoryServer PHP client.",
   "homepage": "https://github.com/storyserver/storyserver-client-php",
   "keywords": ["storyserver"],
-  "version": "1.0.7",
+  "version": "1.0.8",
   "type": "library",
   "minimum-stability": "stable",
   "require": {
-    "guzzlehttp/guzzle": "^6.1"
+    "guzzlehttp/guzzle": "^6.3"
   },
   "require-dev": {
     "phpunit/phpunit": "^5.1"
